@@ -4,3 +4,4 @@ pyromod
 pymongo
 dnspython
 aiohttp
+python-dotenv
