@@ -1,7 +1,7 @@
-#credit @codeflix_bots (telegram)
+# crédit @codeflix_bots (telegram)
 
-"""Get id of the replied user
-Syntax: /id"""
+"""Obtenez l'ID de l'utilisateur répondu
+Syntaxe : /id"""
 
 from pyrogram import filters, enums
 from pyrogram.types import Message
@@ -16,5 +16,6 @@ async def showid(client, message):
     if chat_type == enums.ChatType.PRIVATE:
         user_id = message.chat.id
         await message.reply_text(
-            f"<b>ʏᴏᴜʀ ᴜsᴇʀ ɪᴅ ɪs:</b> <code>{user_id}</code>", quote=True
+            f"<b>ᴠᴏᴛʀᴇ ɪᴅ ᴜᴛɪʟɪꜱᴀᴛᴇᴜʀ ᴇꜱᴛ :</b> <code>{user_id}</code>", quote=True
         )
+
