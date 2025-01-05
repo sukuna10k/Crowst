@@ -1,15 +1,16 @@
+# crédit @codeflix_bots (telegram)
+
 import os
 import asyncio
-from pyrogram import Client, filters
+from pyrogram import Client, filters, __version__
 from pyrogram.enums import ParseMode
 from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
 from pyrogram.errors import FloodWait, UserIsBlocked, InputUserDeactivated
 
 from bot import Bot
-from config import *
+from config import ADMINS, FORCE_MSG, START_MSG, CUSTOM_CAPTION, DISABLE_CHANNEL_BUTTON, PROTECT_CONTENT
 from helper_func import subscribed, encode, decode, get_messages
 from database.database import add_user, del_user, full_userbase, present_user
-
 
 @Bot.on_message(filters.command('start') & filters.private & subscribed)
 async def start_command(client: Client, message: Message):
@@ -20,7 +21,7 @@ async def start_command(client: Client, message: Message):
         except:
             pass
     text = message.text
-    if len(text)>7:
+    if len(text) > 7:
         try:
             base64_string = text.split(" ", 1)[1]
         except:
@@ -34,7 +35,7 @@ async def start_command(client: Client, message: Message):
             except:
                 return
             if start <= end:
-                ids = range(start,end+1)
+                ids = range(start, end + 1)
             else:
                 ids = []
                 i = start
@@ -48,18 +49,17 @@ async def start_command(client: Client, message: Message):
                 ids = [int(int(argument[1]) / abs(client.db_channel.id))]
             except:
                 return
-        temp_msg = await message.reply("Wait Bro...")
+        temp_msg = await message.reply("ᴘᴀᴛɪᴇɴᴛᴇᴢ, ꜱ'ɪʟ ᴠᴏᴜꜱ ᴘʟᴀîᴛ...")
         try:
             messages = await get_messages(client, ids)
         except:
-            await message.reply_text("Something went wrong..!")
+            await message.reply_text("QᴜᴇʟQᴜᴇ ᴄʜᴏꜱᴇ ᴀ ᴍᴀʟ ᴛᴏᴜʀɴé..!")
             return
         await temp_msg.delete()
 
         for msg in messages:
-
             if bool(CUSTOM_CAPTION) & bool(msg.document):
-                caption = CUSTOM_CAPTION.format(previouscaption = "" if not msg.caption else msg.caption.html, filename = msg.document.file_name)
+                caption = CUSTOM_CAPTION.format(previouscaption="" if not msg.caption else msg.caption.html, filename=msg.document.file_name)
             else:
                 caption = "" if not msg.caption else msg.caption.html
 
@@ -69,57 +69,62 @@ async def start_command(client: Client, message: Message):
                 reply_markup = None
 
             try:
-                await msg.copy(chat_id=message.from_user.id, caption = caption, parse_mode = ParseMode.HTML, reply_markup = reply_markup, protect_content=PROTECT_CONTENT)
-                await asyncio.sleep(1)
+                await msg.copy(chat_id=message.from_user.id, caption=caption, parse_mode=ParseMode.HTML, reply_markup=reply_markup, protect_content=PROTECT_CONTENT)
+                await asyncio.sleep(0.5)
             except FloodWait as e:
                 await asyncio.sleep(e.x)
-                await msg.copy(chat_id=message.from_user.id, caption = caption, parse_mode = ParseMode.HTML, reply_markup = reply_markup, protect_content=PROTECT_CONTENT)
+                await msg.copy(chat_id=message.from_user.id, caption=caption, parse_mode=ParseMode.HTML, reply_markup=reply_markup, protect_content=PROTECT_CONTENT)
             except:
                 pass
         return
     else:
-        reply_markup = InlineKeyboardMarkup([
-            [InlineKeyboardButton("ʜᴇʟᴘ", callback_data='help'),
-             InlineKeyboardButton("ᴀʙᴏᴜᴛ", callback_data='about')]
-        ])
-        await message.reply_photo(
-            photo= START_PIC,
-            caption= START_MSG.format(
-                first = message.from_user.first_name,
-                last = message.from_user.last_name,
-                username = None if not message.from_user.username else '@' + message.from_user.username,
-                mention = message.from_user.mention,
-                id = message.from_user.id
+        reply_markup = InlineKeyboardMarkup(
+            [
+                [
+                    InlineKeyboardButton("⚡️ À ᴘʀᴏᴘᴏꜱ", callback_data="about"),
+                    InlineKeyboardButton('🍁 SériesFlix', url='https://t.me/AnTiflix_A')
+                ]
+            ]
+        )
+        await message.reply_text(
+            text=START_MSG.format(
+                first=message.from_user.first_name,
+                last=message.from_user.last_name,
+                username=None if not message.from_user.username else '@' + message.from_user.username,
+                mention=message.from_user.mention,
+                id=message.from_user.id
             ),
-            reply_markup = reply_markup,
-            
+            reply_markup=reply_markup,
+            disable_web_page_preview=True,
+            quote=True
         )
         return
-    
 
 #=====================================================================================##
 
-WAIT_MSG = "<b>Working....</b>"
+WAIT_MSG = """"<b>ᴛʀᴀɪᴛᴇᴍᴇɴᴛ ᴇɴ ᴄᴏᴜʀꜱ...</b>"""
 
-REPLY_ERROR = "<code>Use this command as a reply to any telegram message without any spaces.</code>"
+REPLY_ERROR = """<code>ᴜᴛɪʟɪꜱᴇᴢ ᴄᴇᴛᴛᴇ ᴄᴏᴍᴍᴀɴᴅᴇ ᴇɴ ʀéᴘᴏɴꜱᴇ à ᴛᴏᴜᴛ ᴍᴇꜱꜱᴀɢᴇ ᴛᴇʟᴇɢʀᴀᴍ ꜱᴀɴꜱ ᴇꜱᴘᴀᴄᴇꜱ.</code>"""
 
 #=====================================================================================##
 
-    
-    
 @Bot.on_message(filters.command('start') & filters.private)
 async def not_joined(client: Client, message: Message):
     buttons = [
         [
-            InlineKeyboardButton(text="• ᴊᴏɪɴ ᴄʜᴀɴɴᴇʟ", url=client.invitelink),
-            InlineKeyboardButton(text="ᴊᴏɪɴ ᴄʜᴀɴɴᴇʟ •", url=client.invitelink2),
+            InlineKeyboardButton(text="• ʀᴇᴊᴏɪɴᴅʀᴇ ʟᴇ ᴄᴀɴᴀʟ", url=client.invitelink),
+            InlineKeyboardButton(text="ʀᴇᴊᴏɪɴᴅʀᴇ ʟᴇ ᴄᴀɴᴀʟ •", url=client.invitelink2),
+        ],
+        [
+            InlineKeyboardButton(text="• ʀᴇᴊᴏɪɴᴅʀᴇ ʟᴇ ᴄᴀɴᴀʟ", url=client.invitelink3),
+            InlineKeyboardButton(text="ʀᴇᴊᴏɪɴᴅʀᴇ ʟᴇ ᴄᴀɴᴀʟ •", url=client.invitelink4),
         ]
     ]
     try:
         buttons.append(
             [
                 InlineKeyboardButton(
-                    text='• ᴛʀʏ ᴀɢᴀɪɴ •',
+                    text='• ᴄʟɪQᴜᴇᴢ ɪᴄɪ ᴍᴀɪɴᴛᴇɴᴀɴᴛ •',
                     url=f"https://t.me/{client.username}?start={message.command[1]}"
                 )
             ]
@@ -127,23 +132,24 @@ async def not_joined(client: Client, message: Message):
     except IndexError:
         pass
 
-    await message.reply_photo(
-    photo=FORCE_PIC, 
-    caption=FORCE_MSG.format(
-        first=message.from_user.first_name,
-        last=message.from_user.last_name,
-        username=None if not message.from_user.username else '@' + message.from_user.username,
-        mention=message.from_user.mention,
-        id=message.from_user.id
-    ),
-    reply_markup=InlineKeyboardMarkup(buttons)
-)
+    await message.reply(
+        text=FORCE_MSG.format(
+            first=message.from_user.first_name,
+            last=message.from_user.last_name,
+            username=None if not message.from_user.username else '@' + message.from_user.username,
+            mention=message.from_user.mention,
+            id=message.from_user.id
+        ),
+        reply_markup=InlineKeyboardMarkup(buttons),
+        quote=True,
+        disable_web_page_preview=True
+    )
 
 @Bot.on_message(filters.command('users') & filters.private & filters.user(ADMINS))
 async def get_users(client: Bot, message: Message):
     msg = await client.send_message(chat_id=message.chat.id, text=WAIT_MSG)
     users = await full_userbase()
-    await msg.edit(f"{len(users)} users are using this bot")
+    await msg.edit(f"{len(users)} ᴜᴛɪʟɪꜱᴀᴛᴇᴜʀꜱ ᴜᴛɪʟɪꜱᴇɴᴛ ᴄᴇ ʙᴏᴛ")
 
 @Bot.on_message(filters.private & filters.command('broadcast') & filters.user(ADMINS))
 async def send_text(client: Bot, message: Message):
@@ -156,7 +162,7 @@ async def send_text(client: Bot, message: Message):
         deleted = 0
         unsuccessful = 0
         
-        pls_wait = await message.reply("<i>ʙʀᴏᴀᴅᴄᴀꜱᴛ ᴘʀᴏᴄᴇꜱꜱɪɴɢ....</i>")
+        pls_wait = await message.reply("<i>ᴅɪꜰꜰᴜꜱɪᴏɴ ᴅᴜ ᴍᴇꜱꜱᴀɢᴇ.. ᴄᴇʟᴀ ᴘʀᴇɴᴅʀᴀ ᴅᴜ ᴛᴇᴍᴘꜱ</i>")
         for chat_id in query:
             try:
                 await broadcast_msg.copy(chat_id)
@@ -176,13 +182,13 @@ async def send_text(client: Bot, message: Message):
                 pass
             total += 1
         
-        status = f"""<b><u>ʙʀᴏᴀᴅᴄᴀꜱᴛ...</u>
+        status = f"""<b><u>ᴅɪꜰꜰᴜꜱɪᴏɴ ᴛᴇʀᴍɪɴéᴇ</u>
 
-Total Users: <code>{total}</code>
-Successful: <code>{successful}</code>
-Blocked Users: <code>{blocked}</code>
-Deleted Accounts: <code>{deleted}</code>
-Unsuccessful: <code>{unsuccessful}</code></b>"""
+ᴜᴛɪʟɪꜱᴀᴛᴇᴜʀꜱ ᴛᴏᴛᴀᴜx: <code>{total}</code>
+ꜱᴜᴄᴄèꜱ: <code>{successful}</code>
+ᴜᴛɪʟɪꜱᴀᴛᴇᴜʀꜱ ʙʟᴏQᴜéꜱ:<code>{blocked}</code>
+ᴄᴏᴍᴘᴛᴇꜱ ꜱᴜᴘᴘʀɪᴍéꜱ: <code>{deleted}</code>
+Éᴄʜᴇᴄꜱ:<code>{unsuccessful}</code></b>"""
         
         return await pls_wait.edit(status)
 
